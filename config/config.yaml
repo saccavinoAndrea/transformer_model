@@ -1,0 +1,29 @@
+# config/config.yaml
+loggers:
+  default: INFO
+  http_fetcher: INFO
+
+# logger out dir for json logging file
+logger_out_dir: data/logger/metrics
+logger_out_file_name: /fetcher_metrics.jsonl
+
+#  Scraping config
+n_pages: 42
+raw_html_dir: "data/html_pages_dir/raw_html"
+from_page: 161
+
+# PipeLine config
+pipeline_preprocess_config: config/pipeline_preprocess.yaml
+pipeline_preprocess_section: pipeline_preprocess
+
+pipeline_labeling_config: config/pipeline_labeling.yaml
+pipeline_labeling_section: pipeline_labeling
+
+pipeline_training_config: config/pipeline_training.yaml
+pipeline_training_section: pipeline_training
+
+pipeline_inference_config: config/pipeline_inference.yaml
+pipeline_inference_section: pipeline_inference
+
+pipeline_model_config: config/pipeline_model.yaml
+pipeline_model_section: pipeline_model

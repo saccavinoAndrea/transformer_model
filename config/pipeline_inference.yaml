@@ -1,0 +1,29 @@
+pipeline_inference:
+  - name: InferenceStep
+    class: immobiliare.pipeline.steps.inference_step.InferenceStep
+    params:
+      html_pages_dir_to_predict: "data/html_pages_dir/to_predict"
+      file_name_to_predict: "annuncio_for_training_*.html" #"media_world"
+      normalizer_dir: "data/transformer_model/preprocess/artifacts/features/normalizer.pkl"
+      jsonl_report_dir: "data/transformer_model/inference/artifacts/tokens/token_embeddings_dense_to_predict.json"
+      csv_report_dir: "data/transformer_model/inference/artifacts/tokens/token_embeddings_dense_to_predict.csv"
+      feature_keys_dir: "data/transformer_model/preprocess/artifacts/features/feature_keys.json"
+      label2id_dir: "data/transformer_model/labeling/artifacts/label2id.json"
+      model_dir: "data/transformer_model/training/artifacts/model/pytorch_transformer/best_model.pt"
+      predicted_rumor_path: "data/transformer_model/inference/artifacts/predictions/predicted_O.csv"
+      predicted_feature_path: "data/transformer_model/inference/artifacts/predictions/predicted_features.csv"
+      predicted_complete_path: "data/transformer_model/inference/artifacts/predictions/predicted_complete.csv"
+      page_number_to_predict: 2
+      file_loader:
+      tokenizer_extractor:
+      normalizer:
+      writer_report:
+
+  - name: EvaluationStep
+    class: immobiliare.pipeline.steps.evaluation_step.EvaluationStep
+    params:
+      predictions_complete_path: "data/transformer_model/inference/artifacts/predictions/predicted_complete.csv"
+      ground_truth_path: "data/transformer_model/inference/ground_truth/ground_truth.csv"
+      report_json: "data/transformer_model/inference/eval/report.json"
+      report_csv: "data/transformer_model/inference/eval/error_analysis.csv"
+      cm_png: "data/transformer_model/inference/eval/confusion_matrix.png"
