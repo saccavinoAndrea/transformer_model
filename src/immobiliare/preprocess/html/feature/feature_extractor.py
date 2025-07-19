@@ -169,7 +169,7 @@ class FeatureExtractor(IFeatureExtractor):
             children = [c for c in tag.contents if isinstance(c, Tag)]
             n_children = len(children)
             n_descendants = sum(1 for _ in tag.descendants)
-            max_child_depth = self._compute_max_depth(tag)
+            max_child_depth = self.compute_max_depth(tag)
             has_only_text_children = 1.0 if all(not isinstance(c, Tag) for c in tag.contents) else 0.0
 
             # fratelli
@@ -475,12 +475,12 @@ class FeatureExtractor(IFeatureExtractor):
             self.logger.log_exception("Errore in extract_features", e)
             raise
 
-    def _compute_max_depth(self, tag: Tag) -> int:
+    def compute_max_depth(self, tag: Tag) -> int:
         """Restituisce la profondità massima ricorsiva tra i figli."""
         max_d = 0
         for child in tag.find_all(recursive=False):
             if isinstance(child, Tag):
-                d = 1 + self._compute_max_depth(child)
+                d = 1 + self.compute_max_depth(child)
                 if d > max_d:
                     max_d = d
         return max_d
