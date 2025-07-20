@@ -29,13 +29,23 @@ def substitute_label_by_word(input_path: Path, word: str) -> (int, int):
     substitutions = 0
 
     for r in rows:
-        if word != "Solo Cucina Arredata":
+        if word != "Solo Cucina Arredata" and word != "Descrizione_dettagliata":
             if r[key0] == word and r[last_key] != "O":
                 r[last_key] = "O"
                 substitutions += 1
         elif word == "Solo Cucina Arredata":
             if r[key0] == word and r[last_key] != "FEATURE_ARREDATO":
                 r[last_key] = "FEATURE_ARREDATO"
+                substitutions += 1
+        elif word == "Descrizione_dettagliata":
+            text = r[key0].lower()
+            if (
+                    len(r[key0]) >= 100
+                    and "function" not in text
+                    and "cookie" not in text
+                    and r[last_key] != "FEATURE_DESCRIZIONE_DETTAGLIATA"
+            ):
+                r[last_key] = "FEATURE_DESCRIZIONE_DETTAGLIATA"
                 substitutions += 1
 
 

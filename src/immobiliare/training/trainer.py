@@ -2,6 +2,7 @@ import csv
 import json
 import random
 import time
+from collections import Counter
 from pathlib import Path
 from typing import List, Optional
 
@@ -66,77 +67,22 @@ class Trainer(ITrainer):
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        #ds = HTMLTokenDataset()
-        #label2id = ds.label2id
-
         # 1) carico l'intero dataset
         self.logger.log_info(f" feature_keys_to_use length: {len(self.feature_keys_to_use)}")
         full_ds = HTMLTokenDataset(label2id=self.label2id, feature_keys_to_use=self.feature_keys_to_use)
         full_ds.retrieve_labeled_samples(self.jsonl_path)
 
-        # 🚀 Salvo anche le mappe label<->id
-        #self.label2id = label2id
-
         total = len(full_ds)
         n_val = int(total * self.val_split)
         n_train = total - n_val
-        train_ds, val_ds = random_split(full_ds, [n_train, n_val], generator=torch.Generator().manual_seed(42))
-
-        """
-        # --- OVERSAMPLING SETUP --------------------------------------
-        # costruiamo un elenco di label_id per ogni sample in train_ds
-        train_labels = [train_ds.dataset.samples[i]["label"] for i in train_ds.indices]
-        train_label_ids = [label2id[l] for l in train_labels]
-
-        # conteggi per classe
-        counts = torch.bincount(torch.tensor(train_label_ids, dtype=torch.long))
-        # pesi per sample = inverso alla frequenza della sua classe
-        sample_weights = [1.0 / counts[label_id].item() for label_id in train_label_ids]
-
-        sampler = WeightedRandomSampler(
-            weights=sample_weights,
-            num_samples=len(sample_weights),
-            replacement=True
-        )
-        # ------------------------------------------------------------
-
-        # 2) costruisco i DataLoader
-        train_loader = DataLoader(
-            train_ds,
-            batch_size=self.batch_size,
-            shuffle=True,
-            collate_fn=html_collate_fn,
-        )
-        val_loader = DataLoader(
-            val_ds,
-            batch_size=self.batch_size,
-            shuffle=False,
-            collate_fn=html_collate_fn,
+        train_ds, val_ds = random_split(
+            full_ds,
+            [n_train, n_val],
+            generator=torch.Generator().manual_seed(42)
         )
 
-        # 3) modello: input_dim = numero di feature selezionate!
-        input_dim = len(full_ds.feature_keys_to_use)
-        print("NUMERO DI FEATURE SELEZIONATE ", input_dim)
-        num_classes = len(label2id)
-        print("NUMERO DI CLASSI SELEZIONATE ", num_classes)
-        # tieni embedding_dim multiplo di nhead
-        model = TransformerForTokenClassification(
-            input_dim=input_dim,
-            embedding_dim=64,
-            num_classes=num_classes,
-            nhead=8
-        ).to(device)
-
-        # 4) class weights per il loss (opzionale ma consigliato anche con oversampling)
-
-        # estraiamo gli id (interi) delle label dai sample di full_ds
-        full_label_ids = [label2id[s["label"]] for s in full_ds.samples]
-        full_counts = torch.bincount(torch.tensor(full_label_ids, dtype=torch.long))
-
-            # peso inverso alla frequenza, normalizzato per num_classi
-        class_weights = full_counts.sum() / (full_counts * full_counts.numel())
-        criterion = CrossEntropyLoss(weight=class_weights.to(device))
-        """
+        # ——— STAMPA DISTRIBUZIONE LABEL ———
+        self.print_label_distribution(full_ds, train_ds, val_ds, self.label2id)
 
         seed = 12345
         random.seed(seed)
@@ -150,6 +96,7 @@ class Trainer(ITrainer):
         train_labels = [train_ds.dataset.samples[i]["label"] for i in train_ds.indices]
         #train_label_ids = [label2id[l] for l in train_labels]
         train_label_ids = [self.label2id[l] for l in train_labels]
+        self.logger.log_info("Distribuzione delle etichette nel training set (oversampled): " + str(Counter(train_label_ids)))
 
         counts = torch.bincount(torch.tensor(train_label_ids, dtype=torch.long))
 
@@ -334,18 +281,44 @@ class Trainer(ITrainer):
         # 3) ed esporto tutte le metriche in un CSV
         self._export_metrics_csv()
 
-
-        # 2) salva la mappa tg label2id
-        #label2id_final_path = timestamped_path(self.artifact_dir / "label2id.json")
-        #with open(label2id_final_path, "w", encoding="utf-8") as f:
-        #    json.dump(self.label2id, f, ensure_ascii=False, indent=2)
-
-        #self.logger.log_info("✅ Artifacts salvati in " + """str(feature_keys_final_path)""" + " and " +  str(label2id_final_path))
-
         total_time = time.time() - start_time
         m, s = divmod(total_time, 60)
         h, m = divmod(m, 60)
         self.logger.log_info(f"\n⏱️  Tempo totale di training: {int(h)}h {int(m)}m {int(s)}s")
+
+
+    def print_label_distribution(self, full_ds, train_ds, val_ds, label2id):
+        """
+        Stampa la distribuzione delle label nei dataset di train e validation.
+
+        Args:
+            full_ds: istanza di HTMLTokenDataset completa
+            train_ds: Subset restituito da random_split per il training
+            val_ds: Subset restituito da random_split per la validazione
+            label2id: dict mapping label->id
+        """
+        # mapping inverso per stampare nomi label
+        id2label = {v: k for k, v in label2id.items()}
+
+        # estrai label da train e val
+        train_labels = [full_ds.samples[i]["label"] for i in train_ds.indices]
+        val_labels = [full_ds.samples[i]["label"] for i in val_ds.indices]
+
+        # conteggi
+        train_counts = Counter(train_labels)
+        val_counts = Counter(val_labels)
+
+        all_labels = sorted(set(train_counts.keys()) | set(val_counts.keys()))
+
+        self.logger.log_info("🔍 Distribuzione classi (train vs val):")
+        self.logger.log_info(f"{'Classe':30} | {'Train':>6} | {'Val':>6} | {'% Val/Train':>10}")
+        self.logger.log_info("-" * 60)
+        for label in all_labels:
+            train_c = train_counts.get(label, 0)
+            val_c = val_counts.get(label, 0)
+            ratio = f"{(val_c / train_c * 100):.1f}%" if train_c > 0 else "-"
+            self.logger.log_info(f"{label:30} | {train_c:6} | {val_c:6} | {ratio:>10}")
+
 
     def _plot_metrics(self):
         """Disegna curves di loss e F1‐macro e salva le figure."""
