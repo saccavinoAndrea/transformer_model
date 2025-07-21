@@ -89,6 +89,56 @@ def convert_csv_to_json_with_numbers(output_csv_path: Path) -> int:
     print(f"✅ {count} record scritti in JSONL: {jsonl_path}")
     return count
 
+# Pattern per agenzia “immobiliare”
+AGENCY_KEYWORD = "Immobiliare"
+# Sequenza righe che vogliamo intercettare
+FIRST_MARKER  = "Annunci in zona"
+SECOND_MARKERS = {"Gold", "Silver"}
+
+def substitute_label_agency_sequence(input_path: Path) -> (int, int):
+    """
+    Scorre i record 4-a-4 e, quando trova la sequenza:
+      1) O / "Annunci in zona"
+      2) O / "Gold" or "Silver"
+      3) O / qualsiasi text
+      4) O / text contiene "Immobiliare"
+    rietichetta il 3° record come FEATURE_AGENZIA_IMMOBILIARE.
+    """
+    matches = 0
+    subs    = 0
+
+    # 1) Leggi tutto
+    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+
+    # 2) Scorri in finestra
+    for i in range(len(rows) - 3):
+        try:
+            a, b, c, d = rows[i], rows[i+1], rows[i+2], rows[i+3]
+            if (a.get("label") == "O" and a.get("text") == FIRST_MARKER
+                and b.get("label") == "O" and b.get("text") in SECOND_MARKERS
+                and c.get("label") == "O"
+                and d.get("label") == "O" and AGENCY_KEYWORD in d.get("text", "")
+            ):
+                matches += 1
+                if c["label"] != "FEATURE_AGENZIA_IMMOBILIARE":
+                    c["label"] = "FEATURE_AGENZIA_IMMOBILIARE"
+                    subs += 1
+        except Exception as e:
+            # salta finestre malformate senza interrompere
+            continue
+
+    # 3) Riscrivi in-place
+    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"→ Sequence agency: {matches} matches, {subs} substitutions")
+    return matches, subs
+
 def process(csv_file: str, words_to_substitute: list[str]):
     csv_path_resolved = resolve_versioned_jsonl(csv_file)
     path = Path(csv_path_resolved)
@@ -102,6 +152,11 @@ def process(csv_file: str, words_to_substitute: list[str]):
         m, s = substitute_label_by_word(path, w)
         total_matches += m
         total_subs += s
+
+    # 2) rietichettatura agency a finestra di 4 record
+    m_seq, s_seq = substitute_label_agency_sequence(path)
+    total_matches += m_seq
+    total_subs += s_seq
 
     print(f"🎯 Totale righe matching: {total_matches}, totali etichette modificate: {total_subs}\n")
 
