@@ -23,7 +23,8 @@ pipeline_inference:
     class: immobiliare.pipeline.steps.evaluation_step.EvaluationStep
     params:
       predictions_complete_path: "data/transformer_model/inference/artifacts/predictions/predicted_complete.csv"
-      ground_truth_path: "data/transformer_model/inference/ground_truth/ground_truth.csv"
+      #ground_truth_path: "data/transformer_model/inference/ground_truth/ground_truth.csv"
+      ground_truth_path: "data/transformer_model/inference/ground_truth/ground_truth_generate.csv"
       report_json: "data/transformer_model/inference/eval/report.json"
       report_csv: "data/transformer_model/inference/eval/error_analysis.csv"
       cm_png: "data/transformer_model/inference/eval/confusion_matrix.png"
