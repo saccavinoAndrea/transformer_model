@@ -16,4 +16,4 @@ pipeline_training:
       lr: 0.0001
       patience: 5
       val_split: 0.2
-      max_epochs: 50
+      max_epochs: 30
