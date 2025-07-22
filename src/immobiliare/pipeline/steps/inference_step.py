@@ -8,12 +8,12 @@ from typing import Any, List
 import joblib
 import torch
 
-from core_interfaces.pipeline.ipipeline_step import IPipelineStep
-from models.transformer_pytorch import TransformerForTokenClassification
+from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
+from immobiliare.models.transformer_pytorch import TransformerForTokenClassification
 
-from pipeline.steps import FileLoadingStep, TokenizerParallelStep, SaveToDiskStep
-from utils import timestamped_path, resolve_versioned_jsonl
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.pipeline.steps import FileLoadingStep, TokenizerParallelStep, SaveToDiskStep
+from immobiliare.utils import timestamped_path, resolve_versioned_jsonl
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 def save_ground_truth_csv(data: List[Any], path: Path):

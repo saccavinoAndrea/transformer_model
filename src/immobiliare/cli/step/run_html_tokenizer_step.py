@@ -3,9 +3,9 @@ import csv
 
 from bs4 import BeautifulSoup
 
-from pipeline.steps import FileLoadingStep
-from preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
-from utils import timestamped_path
+from immobiliare.pipeline.steps import FileLoadingStep
+from immobiliare.preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
+from immobiliare.utils import timestamped_path
 
 
 def main():
@@ -44,6 +44,7 @@ def main():
         print(f"\n✅ Token tuples salvati in: {output_path}")
     except Exception as e:
         print(f"\n❌ Errore durante il salvataggio CSV: {e}")
+
 
 if __name__ == "__main__":
     main()

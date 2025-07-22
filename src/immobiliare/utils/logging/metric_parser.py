@@ -3,7 +3,7 @@
 import json
 from typing import List, Dict
 from pathlib import Path
-from core_interfaces.metrics.imetricparser import IMetricParser
+from immobiliare.core_interfaces.metrics.imetricparser import IMetricParser
 
 
 class JsonMetricParser(IMetricParser):

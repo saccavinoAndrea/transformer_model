@@ -7,11 +7,11 @@ from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any, List, Dict
 
-from dataset.html_token_dataset import HTMLTokenDataset
+from immobiliare.dataset.html_token_dataset import HTMLTokenDataset
 from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
 from immobiliare.utils.logging.logger_factory import LoggerFactory
 from immobiliare.utils.logging.decorators import log_exec
-from utils import timestamped_path, resolve_versioned_jsonl
+from immobiliare.utils import timestamped_path, resolve_versioned_jsonl
 
 
 class SaveToDiskStep(IPipelineStep):

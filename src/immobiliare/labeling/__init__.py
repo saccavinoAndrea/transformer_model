@@ -1,2 +1,2 @@
-from labeling.auto_labeler import AutoLabeler
-from labeling.feature_selectors import RandomForestSelector
+from immobiliare.labeling.auto_labeler import AutoLabeler
+from immobiliare.labeling.feature_selectors import RandomForestSelector

@@ -5,7 +5,7 @@ from immobiliare.core_interfaces.pipeline.ipipeline import IPipeline
 from immobiliare.config_loader.loader import ConfigLoader
 from immobiliare.utils.logging.logger_factory import LoggerFactory
 
-from utils import log_exec
+from immobiliare.utils import log_exec
 
 
 class PreprocessPipeline(IPipeline):

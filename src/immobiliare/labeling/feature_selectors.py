@@ -7,9 +7,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from core_interfaces.feature.ifeature_selector import IFeatureSelector
-from utils import resolve_versioned_jsonl, timestamped_path
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.feature.ifeature_selector import IFeatureSelector
+from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 from typing import Tuple, Union
 

@@ -23,8 +23,8 @@ from typing import List, Dict, Tuple
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from core_interfaces.analisys.ianalyzer import IAnalyzer
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.analisys.ianalyzer import IAnalyzer
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 # ---------- utils -----------------------------------------------------------

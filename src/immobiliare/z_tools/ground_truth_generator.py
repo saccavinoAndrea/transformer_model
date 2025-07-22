@@ -3,7 +3,7 @@ import csv
 from collections import Counter
 from pathlib import Path
 
-from utils import resolve_versioned_jsonl
+from immobiliare.utils import resolve_versioned_jsonl
 
 # Marker e pattern per le sostituzioni di sequenza
 FIRST_MARKER = "Annunci in zona"

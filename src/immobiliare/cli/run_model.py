@@ -1,6 +1,6 @@
 import time
 
-from pipeline import PreprocessPipeline, LabelingPipeline, TrainingPipeline, InferencePipeline
+from immobiliare.pipeline import PreprocessPipeline, LabelingPipeline, TrainingPipeline, InferencePipeline
 
 
 def main():

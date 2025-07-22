@@ -1,4 +1,4 @@
-from pipeline.steps import FileLoadingStep, TokenizerParallelStep
+from immobiliare.pipeline.steps import FileLoadingStep, TokenizerParallelStep
 from deprecated.tokenizer_html_and_feature_extraction_step import TokenizerHtmlAndFeatureExtractionStep
 
 

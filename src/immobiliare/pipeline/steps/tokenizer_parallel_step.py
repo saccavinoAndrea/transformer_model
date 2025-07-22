@@ -7,8 +7,8 @@ from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
 from immobiliare.domain.token import Token
 from immobiliare.utils.logging.decorators import log_exec
 from immobiliare.utils.logging.logger_factory import LoggerFactory
-from pipeline.steps.tokenizer_runner import _process_single_page
-from utils.token_utils import build_token_from_dict
+from immobiliare.pipeline.steps.tokenizer_runner import _process_single_page
+from immobiliare.utils.token_utils import build_token_from_dict
 
 
 class TokenizerParallelStep(IPipelineStep):

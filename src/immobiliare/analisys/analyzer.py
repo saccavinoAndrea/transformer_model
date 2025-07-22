@@ -10,7 +10,7 @@ from typing import List, Dict, Tuple, Any
 from immobiliare.core_interfaces.analisys.ianalyzer import IAnalyzer
 from immobiliare.utils.logging.logger_factory import LoggerFactory
 from immobiliare.utils.logging.decorators import log_exec
-from utils import resolve_versioned_jsonl, timestamped_path
+from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
 
 
 class Analyzer(IAnalyzer):

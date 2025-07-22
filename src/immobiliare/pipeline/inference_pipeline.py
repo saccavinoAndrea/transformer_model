@@ -1,7 +1,7 @@
-from config_loader import ConfigLoader, load_pipeline_from_yaml
-from core_interfaces.pipeline.ipipeline import IPipeline
-from utils import log_exec
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.config_loader import ConfigLoader, load_pipeline_from_yaml
+from immobiliare.core_interfaces.pipeline.ipipeline import IPipeline
+from immobiliare.utils import log_exec
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class InferencePipeline(IPipeline):

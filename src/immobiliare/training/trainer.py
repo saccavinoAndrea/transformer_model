@@ -16,12 +16,12 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, WeightedRandomSampler, random_split
 
-from core_interfaces.trainer.itrainer import ITrainer
-from dataset.collate import html_collate_fn
-from dataset.html_token_dataset import HTMLTokenDataset
-from models.transformer_pytorch import TransformerForTokenClassification
-from utils import timestamped_path
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.trainer.itrainer import ITrainer
+from immobiliare.dataset.collate import html_collate_fn
+from immobiliare.dataset.html_token_dataset import HTMLTokenDataset
+from immobiliare.models.transformer_pytorch import TransformerForTokenClassification
+from immobiliare.utils import timestamped_path
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class Trainer(ITrainer):

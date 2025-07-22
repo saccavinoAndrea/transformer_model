@@ -2,9 +2,9 @@ import json
 import time
 from pathlib import Path
 
-from core_interfaces.pipeline.ipipeline_step import IPipelineStep
-from utils import resolve_versioned_jsonl, timestamped_path
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
+from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class EvaluationStep(IPipelineStep):

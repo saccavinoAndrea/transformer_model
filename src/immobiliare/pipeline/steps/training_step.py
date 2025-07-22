@@ -5,9 +5,9 @@ from typing import Any
 
 from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
 from immobiliare.utils.logging.decorators import log_exec
-from training.trainer import Trainer
-from utils import resolve_versioned_jsonl
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.training.trainer import Trainer
+from immobiliare.utils import resolve_versioned_jsonl
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class TrainingStep(IPipelineStep):

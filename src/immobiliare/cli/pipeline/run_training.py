@@ -1,6 +1,6 @@
 
 
-from pipeline import TrainingPipeline
+from immobiliare.pipeline import TrainingPipeline
 
 
 def main():

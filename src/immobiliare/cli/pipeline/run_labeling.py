@@ -1,6 +1,6 @@
 # src/immobiliare/cli/run_labeling.py
 
-from pipeline import LabelingPipeline
+from immobiliare.pipeline import LabelingPipeline
 
 def main():
 

@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
-from core_interfaces.logger.ilogger import ILogger
+from immobiliare.core_interfaces.logger.ilogger import ILogger
 
 class LoggerFactory:
     _loggers: Dict[str, ILogger] = {}

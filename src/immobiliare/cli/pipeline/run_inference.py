@@ -1,7 +1,7 @@
 # src/immobiliare/cli/run_inference.py
 import time
 
-from pipeline import InferencePipeline
+from immobiliare.pipeline import InferencePipeline
 
 
 def main():

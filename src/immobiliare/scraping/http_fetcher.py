@@ -5,10 +5,10 @@ from pathlib import Path
 import asyncio
 
 from playwright.async_api import async_playwright, Playwright, TimeoutError as PlaywrightTimeoutError
-from core_interfaces.fetcher.abstract_ifetcher import IFetcher
-from core_interfaces.fetcher.ipage_fetcher import IPageFetcher
-from core_interfaces.logger.ilogger import ILogger  # interfaccia
-from utils.logging.decorators import alog_exec
+from immobiliare.core_interfaces.fetcher.abstract_ifetcher import IFetcher
+from immobiliare.core_interfaces.fetcher.ipage_fetcher import IPageFetcher
+from immobiliare.core_interfaces.logger.ilogger import ILogger  # interfaccia
+from immobiliare.utils.logging.decorators import alog_exec
 
 
 class HttpFetcher(IFetcher, IPageFetcher):

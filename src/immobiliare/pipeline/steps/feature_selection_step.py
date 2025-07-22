@@ -3,10 +3,10 @@ import time
 from pathlib import Path
 from typing import Any
 
-from core_interfaces.pipeline.ipipeline_step import IPipelineStep
-from labeling.feature_selectors import RandomForestSelector
-from utils import log_exec, resolve_versioned_jsonl
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
+from immobiliare.labeling.feature_selectors import RandomForestSelector
+from immobiliare.utils import log_exec, resolve_versioned_jsonl
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class FeatureSelectionStep(IPipelineStep):

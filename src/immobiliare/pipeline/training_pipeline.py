@@ -1,6 +1,6 @@
 # src/immobiliare/pipeline/training_pipeline.py
 
-from config_loader import ConfigLoader
+from immobiliare.config_loader import ConfigLoader
 from immobiliare.config_loader.pipeline_loader import load_pipeline_from_yaml
 from immobiliare.core_interfaces.pipeline.ipipeline import IPipeline
 from immobiliare.utils.logging.decorators import log_exec
