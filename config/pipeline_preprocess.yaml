@@ -3,7 +3,7 @@ pipeline_preprocess:
     class: immobiliare.pipeline.steps.file_loading_step.FileLoadingStep
     params:
       input_dir: "data/html_pages_dir/"
-      limit: 5
+      limit: 100
 
   - name: TokenizerParallelStep
     class: immobiliare.pipeline.steps.tokenizer_parallel_step.TokenizerParallelStep
