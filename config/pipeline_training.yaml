@@ -2,13 +2,13 @@ pipeline_training:
   - name: TrainingStep
     class: immobiliare.pipeline.steps.training_step.TrainingStep
     params:
-      jsonl_labeled_path: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"   # il path al JSONL etichettato
-      label_2id_dir: "data/transformer_model/labeling/artifacts/label2id.json"
-      features_keys_dir: "data/transformer_model/preprocess/artifacts/features/feature_keys.json"   # il path di tutte le feature estratte durante la fase di preprocess
-      selected_features_path: "data/transformer_model/labeling/artifacts/feature/selected_features.json"  # il path delle feature da considerare durante la fase di training
-      model_dir: "data/transformer_model/training/artifacts/model/pytorch_transformer/best_model.pt"       # il path di salvataggio del best model
-      report_dir: "data/transformer_model/training/artifacts/report"  # il path di salvataggio dei report della fase di training
-      artifact_dir: "data/transformer_model/training/artifacts"   # il path di salvataggio degli artefatti
+      jsonl_labeled_path: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"   # il path al JSONL etichettato
+      label_2id_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/label2id.json"
+      features_keys_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/features/feature_keys.json"   # il path di tutte le feature estratte durante la fase di preprocess
+      selected_features_path: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/feature/selected_features.json"  # il path delle feature da considerare durante la fase di training
+      model_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/training/artifacts/model/pytorch_transformer/best_model.pt"       # il path di salvataggio del best model
+      report_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/training/artifacts/report"  # il path di salvataggio dei report della fase di training
+      artifact_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/training/artifacts"   # il path di salvataggio degli artefatti
       training_with_selected_features: false  # decide se la fase di training verrà eseguita con le feature selezionate o in modalità full feature
 
       # hyper‑parametri di training

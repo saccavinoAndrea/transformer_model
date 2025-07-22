@@ -2,23 +2,23 @@ pipeline_labeling:
   - name: LabelingStep
     class: immobiliare.pipeline.steps.labeling_step.LabelingStep
     params:
-      html_dir: "data/html_pages_dir/"
+      html_dir: "/content/drive/MyDrive/Colab Notebooks/data/html_pages_dir/"
       html_file_name: "annuncio_for_training_*.html"
-      input_jsonl: "data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.jsonl"
-      output_jsonl: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"
-      output_csv: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.csv"
-      label_2id_dir: "data/transformer_model/labeling/artifacts/label2id.json"
+      input_jsonl: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.jsonl"
+      output_jsonl: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"
+      output_csv: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.csv"
+      label_2id_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/label2id.json"
 
   - name: FeatureSelectionStep
     class: immobiliare.pipeline.steps.feature_selection_step.FeatureSelectionStep
     params:
-      feature_labelled_dir: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.csv"
-      feature_selected_dir: "data/transformer_model/labeling/artifacts/feature/selected_features.json"
+      feature_labelled_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.csv"
+      feature_selected_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/feature/selected_features.json"
       label_column_name: "label"
 
   - name: AnalysisStep
     class: immobiliare.pipeline.steps.analysis_step.AnalysisStep
     params:
-      input_jsonl: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"
-      filtered_output: "data/transformer_model/labeling/artifacts/tokens/analysis/tokens_filtered.jsonl"
-      distribution_output: "data/transformer_model/labeling/artifacts/tokens/analysis/token_type_distribution.txt"
+      input_jsonl: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"
+      filtered_output: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/analysis/tokens_filtered.jsonl"
+      distribution_output: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/labeling/artifacts/tokens/analysis/token_type_distribution.txt"

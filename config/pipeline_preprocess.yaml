@@ -2,7 +2,7 @@ pipeline_preprocess:
   - name: FileLoadingStep
     class: immobiliare.pipeline.steps.file_loading_step.FileLoadingStep
     params:
-      input_dir: "data/html_pages_dir/"
+      input_dir: "/content/drive/MyDrive/Colab Notebooks/data/html_pages_dir/"
       limit: 100
 
   - name: TokenizerParallelStep
@@ -11,11 +11,11 @@ pipeline_preprocess:
   - name: NormalizationStep
     class: immobiliare.pipeline.steps.normalization_step.NormalizationStep
     params:
-      normalizer_path: "data/transformer_model/preprocess/artifacts/features/normalizer.pkl"
+      normalizer_path: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/features/normalizer.pkl"
 
   - name: SaveToDiskStep
     class: immobiliare.pipeline.steps.save_to_disk_step.SaveToDiskStep
     params:
-      jsonl_path: "data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.jsonl"
-      csv_path: "data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.csv"
-      features_keys_dir: "data/transformer_model/preprocess/artifacts/features"
+      jsonl_path: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.jsonl"
+      csv_path: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/tokens/token_embeddings_dense.csv"
+      features_keys_dir: "/content/drive/MyDrive/Colab Notebooks/data/transformer_model/preprocess/artifacts/features"

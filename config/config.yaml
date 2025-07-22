@@ -9,7 +9,7 @@ logger_out_file_name: /fetcher_metrics.jsonl
 
 #  Scraping config
 n_pages: 42
-raw_html_dir: "data/html_pages_dir/raw_html"
+raw_html_dir: "/content/drive/MyDrive/Colab Notebooks/data/html_pages_dir/raw_html"
 from_page: 161
 
 # PipeLine config
