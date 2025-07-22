@@ -145,20 +145,17 @@ class InferenceStep(IPipelineStep):
         ).to(device)
 
         model_resolved_dir = str(resolve_versioned_jsonl(self.model_dir))
-        #model.load_state_dict(torch.load(model_final_dir, map_location=device))
+        model.load_state_dict(torch.load(model_resolved_dir, map_location=device))
 
-        import sys
-        import immobiliare.utils as imm_utils
-        sys.modules["utils"] = imm_utils
-        ckpt = torch.load(model_resolved_dir, map_location=device)
-        state_dict = ckpt.get("model_state_dict", ckpt.get("state_dict", ckpt))
-
-        in_keys = [k for k in state_dict.keys() if "embedding.weight" in k or "linear" in k and "weight" in k]
-        for k in in_keys:
-            if "embedding.weight" == k:
-                self.logger.log_info(k + str(state_dict[k].shape))
-
-        model.load_state_dict(state_dict)
+        # ckpt = torch.load(model_resolved_dir, map_location=device)
+        # state_dict = ckpt.get("model_state_dict", ckpt.get("state_dict", ckpt))
+        #
+        # in_keys = [k for k in state_dict.keys() if "embedding.weight" in k or "linear" in k and "weight" in k]
+        # for k in in_keys:
+        #     if "embedding.weight" == k:
+        #         self.logger.log_info(k + str(state_dict[k].shape))
+        #
+        # model.load_state_dict(state_dict)
         model.eval()
 
         normed = [[feat.to_dict()[k] for k in feature_keys] for feat in self.tokens_normalized]
