@@ -1,6 +1,6 @@
 # src/immobiliare/cli/run_preprocess.py
 
-from pipeline import PreprocessPipeline
+from immobiliare.pipeline import PreprocessPipeline
 
 
 def main():
