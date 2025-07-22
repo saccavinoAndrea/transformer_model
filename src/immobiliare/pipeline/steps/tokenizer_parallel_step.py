@@ -25,7 +25,7 @@ class TokenizerParallelStep(IPipelineStep):
 
         all_tokens: List[Token] = []
 
-        with ProcessPoolExecutor(max_workers=4) as executor:
+        with ProcessPoolExecutor(max_workers=1) as executor:
             futures = [executor.submit(_process_single_page, page) for page in data]
 
             for future in futures:
