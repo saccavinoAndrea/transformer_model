@@ -147,6 +147,9 @@ class InferenceStep(IPipelineStep):
         model_resolved_dir = str(resolve_versioned_jsonl(self.model_dir))
         #model.load_state_dict(torch.load(model_final_dir, map_location=device))
 
+        import sys
+        import immobiliare.utils as imm_utils
+        sys.modules["utils"] = imm_utils
         ckpt = torch.load(model_resolved_dir, map_location=device)
         state_dict = ckpt.get("model_state_dict", ckpt.get("state_dict", ckpt))
 
