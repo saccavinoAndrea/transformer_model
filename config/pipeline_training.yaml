@@ -2,8 +2,8 @@ pipeline_training:
   - name: TrainingStep
     class: immobiliare.pipeline.steps.training_step.TrainingStep
     params:
-      jsonl_labeled_path: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.jsonl"   # il path al JSONL etichettato
-      label_2id_dir: "data/transformer_model/labeling/artifacts/label2id.json"
+      jsonl_labeled_path: "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled_refine.jsonl"   # il path al JSONL etichettato
+      label_2id_dir: "data/transformer_model/labeling/artifacts/label2id_refine.json"
       features_keys_dir: "data/transformer_model/preprocess/artifacts/features/feature_keys.json"   # il path di tutte le feature estratte durante la fase di preprocess
       selected_features_path: "data/transformer_model/labeling/artifacts/feature/selected_features.json"  # il path delle feature da considerare durante la fase di training
       model_dir: "data/transformer_model/training/artifacts/model/pytorch_transformer/best_model.pt"       # il path di salvataggio del best model

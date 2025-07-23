@@ -2,7 +2,7 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 from immobiliare.dataset.html_token_dataset import HTMLTokenDataset
 from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
@@ -23,25 +23,10 @@ PATTERN_ANNUNCI = re.compile(r'annunci immobiliari a \w+', re.IGNORECASE)
 PATTERN_CASE_VENDITA = re.compile(r'case in vendita (a\s)?\w+.*', re.IGNORECASE)
 PATTERN_PROVINCIA = re.compile(r'provincia di \w+', re.IGNORECASE)
 
-def substitute_label_by_word(input_path: Path, word: str) -> (int, int):
-    """
-    - Legge il CSV con DictReader
-    - Conta quante righe hanno la prima colonna == word
-    - Per ognuna, se l'ultima colonna != "O", la imposta a "O" e incrementa subs
-    - Riscrive il CSV in-place con DictWriter
-    - Ritorna (matches, substitutions)
-    """
 
-    # 1) Leggi tutto
-    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames
-        if not fieldnames:
-            raise ValueError("CSV senza header o vuoto")
-        rows = list(reader)
-
-    key0 = fieldnames[0]
-    last_key = fieldnames[-1]
+def substitute_label_by_word(rows: List[Dict[str, Any]], word: str) -> Tuple[int, int]:
+    key0 = list(rows[0].keys())[0]
+    last_key = list(rows[0].keys())[-1]
 
     matches = sum(1 for r in rows if r[key0] == word)
     substitutions = 0
@@ -66,17 +51,10 @@ def substitute_label_by_word(input_path: Path, word: str) -> (int, int):
                 r[last_key] = "FEATURE_DESCRIZIONE_DETTAGLIATA"
                 substitutions += 1
 
-
-    # 2) Riscrivi il CSV in-place
-    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
     print(f"→ '{word}': {matches} righe trovate, {substitutions} etichette modificate")
     return matches, substitutions
 
-def substitute_label_agency_sequence(input_path: Path) -> (int, int):
+def substitute_label_agency_sequence(rows: List[Dict[str, Any]]) -> Tuple[int, int]:
     """
     Scorre i record 4-a-4 e, quando trova la sequenza:
       1) O / "Annunci in zona" o "Agenzie di zona"
@@ -84,21 +62,17 @@ def substitute_label_agency_sequence(input_path: Path) -> (int, int):
       3) O / qualsiasi text
       4) O / text contiene "Immobiliare"
     rietichetta il 3° record come FEATURE_AGENZIA_IMMOBILIARE.
+
+    Ritorna (match trovati, sostituzioni effettuate).
     """
     matches = 0
-    subs    = 0
+    subs = 0
 
-    # 1) Leggi tutto
-    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames or []
-        rows = list(reader)
-
-    # 2) Scorri in finestra
     for i in range(len(rows) - 3):
         try:
             a, b, c, d = rows[i], rows[i+1], rows[i+2], rows[i+3]
-            if (a.get("label") == "O" and (a.get("text") == FIRST_MARKER or FIRST_MARKER_ADD in a.get("text"))
+            if (
+                a.get("label") == "O" and (a.get("text") == FIRST_MARKER or FIRST_MARKER_ADD in a.get("text"))
                 and b.get("label") == "O" and b.get("text") in SECOND_MARKERS
                 and c.get("label") == "O"
                 and d.get("label") == "O" and AGENCY_KEYWORD in d.get("text", "")
@@ -107,35 +81,25 @@ def substitute_label_agency_sequence(input_path: Path) -> (int, int):
                 if c["label"] != "FEATURE_AGENZIA_IMMOBILIARE":
                     c["label"] = "FEATURE_AGENZIA_IMMOBILIARE"
                     subs += 1
-        except Exception as e:
-            # salta finestre malformate senza interrompere
+        except Exception:
             continue
-
-    # 3) Riscrivi in-place
-    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
 
     print(f"→ Sequence agency: {matches} matches, {subs} substitutions")
     return matches, subs
 
-def substitute_feature_zona_sequence(input_path: Path):
+def substitute_feature_zona_sequence(rows: List[Dict[str, Any]]) -> Tuple[int, int]:
     """
-    Scorre la lista di token (ogni elemento è dict con 'label' e 'text'),
-    quando trova un elemento con text == "Scegli la zona",
-    etichetta come FEATURE_ZONA tutti i token successivi con label "O"
-    fino a incontrare un text che matcha RESULTS_PATTERN.
+    Cerca "Scegli la zona" e rietichetta i token successivi con label "O" come FEATURE_ZONA,
+    fino a trovare un token che matcha RESULTS_PATTERN.
 
-    Modifica in-place rows, e ritorna il numero di token rietichettati.
+    Modifica in-place la lista rows.
+
+    Ritorna:
+        matches: numero di occorrenze trovate di "Scegli la zona"
+        substitutions: numero totale di token rietichettati
     """
-    # 1) Leggi tutto
-    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames or []
-        rows = list(reader)
-
-    count = 0
+    matches = 0
+    substitutions = 0
     n = len(rows)
     i = 0
 
@@ -143,7 +107,7 @@ def substitute_feature_zona_sequence(input_path: Path):
         try:
             token = rows[i]
             if token.get("label") == "O" and token.get("text") == "Scegli la zona":
-                # da qui in poi, etichetta fino al break
+                matches += 1
                 j = i + 1
                 while j < n:
                     t = rows[j]
@@ -153,40 +117,25 @@ def substitute_feature_zona_sequence(input_path: Path):
                         break
                     if lbl == "O":
                         rows[j]["label"] = "FEATURE_ZONA"
-                        count += 1
+                        substitutions += 1
                     j += 1
-                # posiziona i su j per continuare la scansione oltre il blocco
                 i = j
             else:
                 i += 1
         except Exception:
-            # in caso di riga malformata o chiavi mancanti, saltala
             i += 1
             continue
 
-    # 3) Riscrivi in-place
-    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    print(f"→ Sequence Zona: {matches} matches, {substitutions} substitutions")
+    return matches, substitutions
 
-    print(f"→ FEATURE_ZONA applied to {count} tokens")
-    return count
-
-def substitute_feature_banner_sequence(input_path: Path):
+def substitute_feature_banner_sequence(rows: List[Dict[str, Any]]) -> Tuple[int, int]:
     """
-    Scorre la lista di token (ogni elemento è dict con 'label' e 'text'),
-    quando trova un text specifico tra quelli noti (esatto o contenente "Comune") con label "O",
-    lo rietichetta con la corrispondente FEATURE_BANNER_*.
+    Modifica in-place i token con label 'O' e text corrispondente a pattern/banner noti,
+    rietichettandoli come FEATURE_BANNER_*.
 
-    Modifica in-place rows, e ritorna il numero di token rietichettati.
+    Ritorna una tupla (match trovati, sostituzioni effettuate).
     """
-    # 1) Leggi tutto
-    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames or []
-        rows = list(reader)
-
     exact_matches = {
         "RSS": "FEATURE_BANNER_RSS",
         "Vendi casa velocemente": "FEATURE_BANNER_PUBBLICITA",
@@ -196,68 +145,48 @@ def substitute_feature_banner_sequence(input_path: Path):
         "Privati": "FEATURE_BANNER_PUBBLICITA",
         "Ricerche correlate": "FEATURE_BANNER_PUBBLICITA",
         "Scegli la zona": "FEATURE_BANNER_PUBBLICITA",
-        #"Prezzi immobili": "FEATURE_BANNER_PUBBLICITA",
-        #"prezzi case": "FEATURE_BANNER_PUBBLICITA"
+        # "Prezzi immobili": "FEATURE_BANNER_PUBBLICITA",
+        # "prezzi case": "FEATURE_BANNER_PUBBLICITA"
     }
 
-    count = 0
+    matches = 0
+    substitutions = 0
     n = len(rows)
 
-    for i in range(n):
+    for row in rows:
         try:
-            row = rows[i]
             text = row.get("text", "")
             label = row.get("label", "")
             if label != "O":
                 continue
 
+            new_label = None
             if text in exact_matches:
-                rows[i]["label"] = exact_matches[text]
-                count += 1
+                new_label = exact_matches[text]
             elif "Comune" in text:
-                rows[i]["label"] = "FEATURE_BANNER_COMUNE"
-                count += 1
-            elif (PATTERN_CASE_IN_VENDITA.match(text) or
-                  "risultati per:" in text or
-                  "Più rilevanti" == text or
-                  "Immobiliare.it" in text or
-                  #"Prezzi case in vendita" in text or
-                  PATTERN_ANNUNCI.match(text) or
-                  PATTERN_CASE_VENDITA.match(text) or
-                  PATTERN_PROVINCIA.match(text)):
-                rows[i]["label"] = "FEATURE_BANNER_PUBBLICITA"
-                count += 1
-
-        except Exception:
-            continue
-
-    # Regola sulla sequenza
-    """
-    for i in range(len(rows) - 3):
-        try:
-            t0, t1, t2, t3 = rows[i], rows[i+1], rows[i+2], rows[i+3]
-
-            if (
-                t0["label"] == "FEATURE_BANNER_PUBBLICITA" and t0["text"].strip().lower() == "immobiliare.it"
-                and t1["label"] == "FEATURE_BANNER_PUBBLICITA" and PATTERN_PROVINCIA.match(t1["text"].strip())
-                and t2["label"] == "O"
-                and t3["label"] == "FEATURE_BANNER_PUBBLICITA" and t3["text"].strip().lower() == "scegli la zona"
+                new_label = "FEATURE_BANNER_COMUNE"
+            elif (
+                    PATTERN_CASE_IN_VENDITA.match(text) or
+                    "risultati per:" in text or
+                    text == "Più rilevanti" or
+                    "Immobiliare.it" in text or
+                    # "Prezzi case in vendita" in text or
+                    PATTERN_ANNUNCI.match(text) or
+                    PATTERN_CASE_VENDITA.match(text) or
+                    PATTERN_PROVINCIA.match(text)
             ):
-                t2["label"] = "FEATURE_BANNER_PUBBLICITA"
-                count += 1
+                new_label = "FEATURE_BANNER_PUBBLICITA"
+
+            if new_label:
+                row["label"] = new_label
+                matches += 1
+                substitutions += 1
 
         except Exception:
             continue
-    """
 
-    # 2) Riscrivi in-place
-    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
-    print(f"→ FEATURE_BANNER_* applied to {count} tokens")
-    return count
+    print(f"→ Sequence Banner: {matches} matches, {substitutions} substitutions")
+    return matches, substitutions
 
 def cast_value(val: str):
     val = val.strip()
@@ -310,45 +239,65 @@ def save_label2id(input_path: Path, output_path: Path):
 
     print("✅ Artifacts label2Id salvato in " + str(label2id_final_path))
 
-def process(csv_file: str, output_path: str, words_to_substitute: list[str]):
+def process(csv_file: str, output_csv: str, output_jsonl: str, output_label2id: str, words_to_substitute: list[str]):
     csv_path_resolved = resolve_versioned_jsonl(csv_file)
     path = Path(csv_path_resolved)
     if not path.exists():
         raise FileNotFoundError(f"File non trovato: {path}")
 
+    # Carica CSV in memoria
+    with open(path, mode='r', encoding='utf-8', newline='') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+
     total_matches = 0
     total_subs = 0
 
     for w in words_to_substitute:
-        m, s = substitute_label_by_word(path, w)
+        m, s = substitute_label_by_word(rows, w)
         total_matches += m
         total_subs += s
 
-    # 2) rietichettatura agency a finestra di 4 record
-    m_seq, s_seq = substitute_label_agency_sequence(path)
+    m_seq, s_seq = substitute_label_agency_sequence(rows)
     total_matches += m_seq
     total_subs += s_seq
 
-    # 3) ri-etichettatura zona
-    zona_count = substitute_feature_zona_sequence(path)
-    total_matches += zona_count
+    zona_match, zona_count = substitute_feature_zona_sequence(rows)
+    total_matches += zona_match
     total_subs += zona_count
 
-    # 4) ri-etichettatura banner
-    banner_count = substitute_feature_banner_sequence(path)
-    total_matches += banner_count
+    banner_match, banner_count = substitute_feature_banner_sequence(rows)
+    total_matches += banner_match
     total_subs += banner_count
 
     print(f"🎯 Totale righe matching: {total_matches}, totali etichette modificate: {total_subs}\n")
 
-    convert_csv_to_json_with_numbers(path)
-    input_path = str(path).replace("csv", "jsonl")
-    save_label2id(Path(input_path), Path(output_path))
+    # Salva su output_csv_resolved
+    output_csv_time = timestamped_path(output_csv)
+    with open(output_csv_time, mode='w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
+    # Salva su output_jsonl_resolved
+    output_jsonl_time= timestamped_path(output_jsonl)
+    with open(output_jsonl_time, mode='w', encoding='utf-8') as jf:
+        for row in rows:
+            record = {k: cast_value(v) for k, v in row.items()}
+            json.dump(record, jf, ensure_ascii=False)
+            jf.write("\n")
+
+    print(f"✅ Scrittura file completata: {output_csv}, {output_jsonl}")
+
+    # Salva label2id
+    save_label2id(Path(output_jsonl), Path(output_label2id))
 
 if __name__ == "__main__":
     # ===== ESEMPIO DI USO =====
     csv_path = "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled.csv"
-    label2id_path = "data/transformer_model/labeling/artifacts/label2id.json"
+    csv_output = "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled_refine.csv"
+    jsonl_output = "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled_refine.jsonl"
+    label2id_path = "data/transformer_model/labeling/artifacts/label2id_refine.json"
     parole = ["ascensore", "terrazzo", "cantina", "Solo Cucina Arredata"]  # metti qui la tua lista di parole
-    process(csv_path, label2id_path, parole)
+    process(csv_path, csv_output, jsonl_output, label2id_path, parole)
