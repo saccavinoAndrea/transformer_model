@@ -299,7 +299,7 @@ def main():
     csv_output = "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled_refine.csv"
     jsonl_output = "data/transformer_model/labeling/artifacts/tokens/token_embeddings_dense_labeled_refine.jsonl"
     label2id_path = "data/transformer_model/labeling/artifacts/label2id_refine.json"
-    parole = ["ascensore", "terrazzo", "cantina", "Solo Cucina Arredata", "Descrizione_dettagliata"]  # metti qui la tua lista di parole
+    parole = ["ascensore", "terrazzo", "cantina", "Solo Cucina Arredata"]  # metti qui la tua lista di parole
     process(csv_path, csv_output, jsonl_output, label2id_path, parole)
 
 if __name__ == "__main__":
