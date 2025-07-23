@@ -6,10 +6,10 @@ from typing import List, Dict, Tuple, Any
 
 from bs4 import Tag
 
-from domain import Token
+from immobiliare.domain import Token
 from immobiliare.core_interfaces.feature.ifeature_extractor import IFeatureExtractor
 from immobiliare.utils.logging.logger_factory import LoggerFactory
-from preprocess.html.feature.density_features import DensityFeatures
+from immobiliare.preprocess.html.feature.density_features import DensityFeatures
 
 
 def _extract_style_value(style: str, prop: str) -> float:

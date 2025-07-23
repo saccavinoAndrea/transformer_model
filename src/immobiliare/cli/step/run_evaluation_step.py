@@ -1,6 +1,6 @@
 # src/immobiliare/cli/run_inference.py
 
-from pipeline.steps import EvaluationStep
+from immobiliare.pipeline.steps import EvaluationStep
 
 
 def main():

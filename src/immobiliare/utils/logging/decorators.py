@@ -5,8 +5,8 @@ import functools
 from pathlib import Path
 from typing import Callable
 
-from config_loader import ConfigLoader
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.config_loader import ConfigLoader
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 def log_exec(logger_name: str, method_name: str = None):
     """

@@ -10,7 +10,7 @@ import warnings
 from torch import nn
 from typing import Union
 
-from models.transformer_pytorch import TransformerForTokenClassification
+from immobiliare.models.transformer_pytorch import TransformerForTokenClassification
 
 # ✅ Ignora warning da SHAP su np.random.seed
 warnings.filterwarnings("ignore", message="The NumPy global RNG was seeded by calling `np.random.seed`")

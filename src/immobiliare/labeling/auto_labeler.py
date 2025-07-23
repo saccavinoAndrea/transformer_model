@@ -6,11 +6,11 @@ from typing import List, Dict, Any
 
 from bs4 import BeautifulSoup
 
-from dataset.html_token_dataset import HTMLTokenDataset
+from immobiliare.dataset.html_token_dataset import HTMLTokenDataset
 from immobiliare.core_interfaces.labeler.ilabeler import ILabeler
 from immobiliare.utils.logging.logger_factory import LoggerFactory
 from immobiliare.utils.logging.decorators import log_exec
-from utils import resolve_versioned_jsonl, timestamped_path
+from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
 
 
 class AutoLabeler(ILabeler):

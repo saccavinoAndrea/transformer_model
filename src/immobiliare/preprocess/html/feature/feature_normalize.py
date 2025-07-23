@@ -2,8 +2,8 @@ import math
 from dataclasses import is_dataclass, asdict, replace
 from typing import List, Dict, Union, Any
 
-from core_interfaces.feature.ifeature_normalizer import IFeatureNormalizer
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.feature.ifeature_normalizer import IFeatureNormalizer
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 def _to_dict(item: Union[Dict[str, Any], Any]) -> Dict[str, Any]:

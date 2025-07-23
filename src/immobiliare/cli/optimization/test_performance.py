@@ -6,10 +6,10 @@ from typing import List
 
 from bs4 import BeautifulSoup
 
-from domain import Token
-from preprocess.html.feature.feature_extractor import FeatureExtractor
-from preprocess.html.feature.feature_extractor_new import FeatureExtractorOptimized
-from preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
+from immobiliare.domain import Token
+from immobiliare.preprocess.html.feature.feature_extractor import FeatureExtractor
+from immobiliare.preprocess.html.feature.feature_extractor_new import FeatureExtractorOptimized
+from immobiliare.preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
 
 # Assicurati che il path del tuo modulo sia accessibile
 sys.path.append(str(Path(__file__).resolve().parent))

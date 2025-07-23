@@ -1,7 +1,7 @@
 # src/immobiliare/cli/run_inference.py
 from pathlib import Path
 
-from labeling import RandomForestSelector
+from immobiliare.labeling import RandomForestSelector
 
 
 def main():

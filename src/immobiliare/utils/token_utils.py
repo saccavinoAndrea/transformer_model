@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from domain import Token
+from immobiliare.domain import Token
 
 def build_token_from_dict(d: Dict[str, Any]) -> Token:
     return Token(

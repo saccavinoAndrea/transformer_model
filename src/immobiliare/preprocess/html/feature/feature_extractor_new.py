@@ -6,9 +6,9 @@ from typing import List, Dict, Tuple, Any
 
 from bs4 import Tag
 
-from core_interfaces.feature.ifeature_extractor import IFeatureExtractor
-from domain import Token
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.core_interfaces.feature.ifeature_extractor import IFeatureExtractor
+from immobiliare.domain import Token
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 class FeatureExtractorOptimized(IFeatureExtractor):

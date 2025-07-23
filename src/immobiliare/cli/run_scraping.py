@@ -2,10 +2,10 @@
 from pathlib import Path
 import asyncio
 
-from config_loader import ConfigLoader
+from immobiliare.config_loader import ConfigLoader
 from immobiliare.scraping.http_fetcher import HttpFetcher
 
-from utils.logging.logger_factory import LoggerFactory
+from immobiliare.utils.logging.logger_factory import LoggerFactory
 
 
 async def main():

@@ -4,8 +4,8 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any
 
-from dataset.html_token_dataset import HTMLTokenDataset
-from utils import resolve_versioned_jsonl, timestamped_path
+from immobiliare.dataset.html_token_dataset import HTMLTokenDataset
+from immobiliare.utils import resolve_versioned_jsonl, timestamped_path
 
 # Pattern per agenzia “immobiliare”
 AGENCY_KEYWORD = "Immobiliare"

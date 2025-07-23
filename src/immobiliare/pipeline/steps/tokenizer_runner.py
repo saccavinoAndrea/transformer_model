@@ -2,10 +2,10 @@ from typing import Dict, List, Any
 
 from bs4 import BeautifulSoup
 
-from preprocess.html.feature.feature_extractor import FeatureExtractor
-from preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
-from utils.logging.logger_factory import LoggerFactory
-from utils.token_utils import serialize_tokens
+from immobiliare.preprocess.html.feature.feature_extractor import FeatureExtractor
+from immobiliare.preprocess.html.tokenizer.html_tokenizer import HTMLAnnuncioTokenizer
+from immobiliare.utils.logging.logger_factory import LoggerFactory
+from immobiliare.utils.token_utils import serialize_tokens
 
 
 def _process_single_page(page: Dict[str, str]) -> List[Dict[str, Any]]:

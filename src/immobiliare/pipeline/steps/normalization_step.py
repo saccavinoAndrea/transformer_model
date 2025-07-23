@@ -9,7 +9,7 @@ from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
 from immobiliare.preprocess.html.feature.feature_normalize import FeatureNormalizer
 from immobiliare.utils.logging.logger_factory import LoggerFactory
 from immobiliare.utils.logging.decorators import log_exec
-from utils import timestamped_path
+from immobiliare.utils import timestamped_path
 
 
 class NormalizationStep(IPipelineStep):

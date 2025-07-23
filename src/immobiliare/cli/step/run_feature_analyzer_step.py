@@ -1,9 +1,9 @@
 # src/immobiliare/cli/run_inference.py
 from pathlib import Path
 
-from analisys import AnalyzerFeatureDistribution
-from pipeline.steps import AnalysisStep
-from utils import resolve_versioned_jsonl
+from immobiliare.analisys import AnalyzerFeatureDistribution
+from immobiliare.pipeline.steps import AnalysisStep
+from immobiliare.utils import resolve_versioned_jsonl
 
 
 def main():
