@@ -17,6 +17,12 @@ SECOND_MARKERS = {"Gold", "Silver"}
 # Pattern che identifica la riga di terminazione: "<Numero> risultati per:"
 RESULTS_PATTERN = re.compile(r"^\s*\d+(\.\d+)?\s+risultati per:", re.IGNORECASE)
 
+PATTERN_CASE_IN_VENDITA = re.compile(r"^case in vendita\s+\S+", flags=re.IGNORECASE)
+PATTERN_IMMOBILIARE = re.compile(r'immobiliare\.it', re.IGNORECASE)
+PATTERN_ANNUNCI = re.compile(r'annunci immobiliari a \w+', re.IGNORECASE)
+PATTERN_CASE_VENDITA = re.compile(r'case in vendita (a\s)?\w+.*', re.IGNORECASE)
+PATTERN_PROVINCIA = re.compile(r'provincia di \w+', re.IGNORECASE)
+
 def substitute_label_by_word(input_path: Path, word: str) -> (int, int):
     """
     - Legge il CSV con DictReader
@@ -167,6 +173,92 @@ def substitute_feature_zona_sequence(input_path: Path):
     print(f"→ FEATURE_ZONA applied to {count} tokens")
     return count
 
+def substitute_feature_banner_sequence(input_path: Path):
+    """
+    Scorre la lista di token (ogni elemento è dict con 'label' e 'text'),
+    quando trova un text specifico tra quelli noti (esatto o contenente "Comune") con label "O",
+    lo rietichetta con la corrispondente FEATURE_BANNER_*.
+
+    Modifica in-place rows, e ritorna il numero di token rietichettati.
+    """
+    # 1) Leggi tutto
+    with open(input_path, mode='r', encoding='utf-8', newline='') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+
+    exact_matches = {
+        "RSS": "FEATURE_BANNER_RSS",
+        "Vendi casa velocemente": "FEATURE_BANNER_PUBBLICITA",
+        "Ti aiutiamo a trovare le agenzie di zona per vendere casa": "FEATURE_BANNER_PUBBLICITA",
+        "Vendi con agenzia": "FEATURE_BANNER_PUBBLICITA",
+        "Agenzie e costruttori": "FEATURE_BANNER_PUBBLICITA",
+        "Privati": "FEATURE_BANNER_PUBBLICITA",
+        "Ricerche correlate": "FEATURE_BANNER_PUBBLICITA",
+        "Scegli la zona": "FEATURE_BANNER_PUBBLICITA",
+        #"Prezzi immobili": "FEATURE_BANNER_PUBBLICITA",
+        #"prezzi case": "FEATURE_BANNER_PUBBLICITA"
+    }
+
+    count = 0
+    n = len(rows)
+
+    for i in range(n):
+        try:
+            row = rows[i]
+            text = row.get("text", "")
+            label = row.get("label", "")
+            if label != "O":
+                continue
+
+            if text in exact_matches:
+                rows[i]["label"] = exact_matches[text]
+                count += 1
+            elif "Comune" in text:
+                rows[i]["label"] = "FEATURE_BANNER_COMUNE"
+                count += 1
+            elif (PATTERN_CASE_IN_VENDITA.match(text) or
+                  "risultati per:" in text or
+                  "Più rilevanti" == text or
+                  "Immobiliare.it" in text or
+                  #"Prezzi case in vendita" in text or
+                  PATTERN_ANNUNCI.match(text) or
+                  PATTERN_CASE_VENDITA.match(text) or
+                  PATTERN_PROVINCIA.match(text)):
+                rows[i]["label"] = "FEATURE_BANNER_PUBBLICITA"
+                count += 1
+
+        except Exception:
+            continue
+
+    # Regola sulla sequenza
+    """
+    for i in range(len(rows) - 3):
+        try:
+            t0, t1, t2, t3 = rows[i], rows[i+1], rows[i+2], rows[i+3]
+
+            if (
+                t0["label"] == "FEATURE_BANNER_PUBBLICITA" and t0["text"].strip().lower() == "immobiliare.it"
+                and t1["label"] == "FEATURE_BANNER_PUBBLICITA" and PATTERN_PROVINCIA.match(t1["text"].strip())
+                and t2["label"] == "O"
+                and t3["label"] == "FEATURE_BANNER_PUBBLICITA" and t3["text"].strip().lower() == "scegli la zona"
+            ):
+                t2["label"] = "FEATURE_BANNER_PUBBLICITA"
+                count += 1
+
+        except Exception:
+            continue
+    """
+
+    # 2) Riscrivi in-place
+    with open(input_path, mode='w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"→ FEATURE_BANNER_* applied to {count} tokens")
+    return count
+
 def cast_value(val: str):
     val = val.strip()
     if val == "":
@@ -237,10 +329,15 @@ def process(csv_file: str, output_path: str, words_to_substitute: list[str]):
     total_matches += m_seq
     total_subs += s_seq
 
-    # 3) rietichettatura zona
+    # 3) ri-etichettatura zona
     zona_count = substitute_feature_zona_sequence(path)
     total_matches += zona_count
     total_subs += zona_count
+
+    # 4) ri-etichettatura banner
+    banner_count = substitute_feature_banner_sequence(path)
+    total_matches += banner_count
+    total_subs += banner_count
 
     print(f"🎯 Totale righe matching: {total_matches}, totali etichette modificate: {total_subs}\n")
 
