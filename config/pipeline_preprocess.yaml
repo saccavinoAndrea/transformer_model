@@ -12,6 +12,7 @@ pipeline_preprocess:
     class: immobiliare.pipeline.steps.normalization_step.NormalizationStep
     params:
       normalizer_path: "data/transformer_model/preprocess/artifacts/features/normalizer.pkl"
+      normalizer_json_path: "data/transformer_model/preprocess/artifacts/features/normalizer.json"
 
   - name: SaveToDiskStep
     class: immobiliare.pipeline.steps.save_to_disk_step.SaveToDiskStep

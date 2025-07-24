@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, List
 
 import joblib
+import numpy as np
 import torch
 
 from immobiliare.core_interfaces.pipeline.ipipeline_step import IPipelineStep
@@ -14,6 +15,7 @@ from immobiliare.models.transformer_pytorch import TransformerForTokenClassifica
 from immobiliare.pipeline.steps import FileLoadingStep, TokenizerParallelStep, SaveToDiskStep
 from immobiliare.utils import timestamped_path, resolve_versioned_jsonl
 from immobiliare.utils.logging.logger_factory import LoggerFactory
+from preprocess.html.feature.feature_normalize import FeatureNormalizer
 
 
 def save_ground_truth_csv(data: List[Any], path: Path):
@@ -35,6 +37,7 @@ class InferenceStep(IPipelineStep):
             html_pages_dir_to_predict: str,
             file_name_to_predict: str,
             normalizer_dir: str,
+            normalizer_json_dir: str,
             jsonl_report_dir: str,
             csv_report_dir: str,
             feature_keys_dir: str,
@@ -53,6 +56,7 @@ class InferenceStep(IPipelineStep):
         self.html_pages_dir_to_predict = Path(html_pages_dir_to_predict)
         self.file_name_to_predict = file_name_to_predict
         self.normalizer_dir = normalizer_dir
+        self.normalizer_json_dir = normalizer_json_dir
         self.jsonl_report_dir = jsonl_report_dir
         self.csv_report_dir = csv_report_dir
         self.feature_keys_dir = feature_keys_dir
@@ -81,9 +85,9 @@ class InferenceStep(IPipelineStep):
 
         self.file_loader = FileLoadingStep(input_dir=str(self.html_pages_dir_to_predict), limit=self.page_number_to_predict)
         self.tokenizer_extractor = TokenizerParallelStep()
-        self.normalizer = joblib.load(normalizer_resolved_dir)
+        #self.normalizer = joblib.load(normalizer_resolved_dir)
+        self.normalizer = FeatureNormalizer()
         self.writer_report = SaveToDiskStep(jsonl_path=jsonl_report_final_dir, csv_path=csv_report_final_dir)
-
 
         html_page_to_predict = self.file_loader.run()
         self.all_tokens_with_features = self.tokenizer_extractor.run(html_page_to_predict)
@@ -107,10 +111,19 @@ class InferenceStep(IPipelineStep):
         self.logger.log_info("lunghezza feature_keys: " + str(len(feature_keys))) # 2) lunghezza feature_keys
 
         # 2) Normalizzazione su TUTTI i token (eccetto 'position')
+
+        # 2.1) Carica il dict dei parametri
+        normalizer_json_resolved_dir = resolve_versioned_jsonl(self.normalizer_json_dir)
+        params_path = Path(normalizer_json_resolved_dir).with_suffix(".json")
+        with open(params_path, "r", encoding="utf-8") as f:
+            params = json.load(f)
+
+        self.normalizer.means = params["mean"]
+        self.normalizer.stds = params["scale"]
+        self.normalizer.features_to_normalize = list(self.normalizer.means.keys())
         self.tokens_normalized = self.normalizer.transform(self.all_tokens_with_features)
 
-
-        # 2.1) Salvataggio aggregato
+        # 2.2) Salvataggio aggregato
         jsonl_report_final_dir = str(timestamped_path(self.jsonl_report_dir))
         csv_report_final_dir = str(timestamped_path(self.csv_report_dir))
 
@@ -119,7 +132,7 @@ class InferenceStep(IPipelineStep):
         self.logger.log_info(f"   • JSONL → {jsonl_report_final_dir}")
         self.logger.log_info(f"   • CSV   → {csv_report_final_dir}")
 
-        # 2.2) Salvataggio aggiuntivo per generazione ground_truth.csv
+        # 2.3) Salvataggio aggiuntivo per generazione ground_truth.csv
         #save_ground_truth_csv(all_tokens_with_features, Path("data/inference_test/ground_truth/ground_truth.csv"))
 
         # 3) carica label2id e costruisci id2label

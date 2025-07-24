@@ -1,4 +1,5 @@
 # src/immobiliare/pipeline/steps/normalization_step.py
+import json
 
 import joblib
 from pathlib import Path
@@ -18,9 +19,10 @@ class NormalizationStep(IPipelineStep):
     e salva l’istanza fit su disco (normalizer.pkl).
     """
 
-    def __init__(self, normalizer_path: str):
+    def __init__(self, normalizer_path: str, normalizer_json_path: str):
         self.normalizer = FeatureNormalizer()
         self.normalizer_path = normalizer_path
+        self.normalizer_json_path = normalizer_json_path
         self.logger = LoggerFactory.get_logger("normalization_step")
 
     @log_exec(logger_name="normalization_step", method_name="run")
@@ -40,6 +42,20 @@ class NormalizationStep(IPipelineStep):
 
             # Fit + transform
             normalized = self.normalizer.fit_transform(data)
+
+            # Estrai i parametri della normalizzazione
+            params = {
+                "mean": self.normalizer.means,
+                "scale": self.normalizer.stds,
+            }
+
+            # Scrivi in JSON (leggibile e indipendente da joblib)
+            final_normalizer_json_path = timestamped_path(Path(self.normalizer_json_path))
+            final_normalizer_json_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(final_normalizer_json_path, "w", encoding="utf-8") as f:
+                json.dump(params, f, ensure_ascii=False, indent=2)
+
+            self.logger.log_info(f"✅ Normalizer params saved to: {final_normalizer_json_path}")
 
             final_path = timestamped_path(Path(self.normalizer_path))
             # Salvataggio normalizer per usi futuri

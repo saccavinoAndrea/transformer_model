@@ -5,6 +5,7 @@ pipeline_inference:
       html_pages_dir_to_predict: "data/html_pages_dir/to_predict"
       file_name_to_predict: "annuncio_for_training_*.html" #"media_world" or idealista or annuncio_for_training_*.html
       normalizer_dir: "data/transformer_model/preprocess/artifacts/features/normalizer.pkl"
+      normalizer_json_dir: "data/transformer_model/preprocess/artifacts/features/normalizer.json"
       jsonl_report_dir: "data/transformer_model/inference/artifacts/tokens/token_embeddings_dense_to_predict.json"
       csv_report_dir: "data/transformer_model/inference/artifacts/tokens/token_embeddings_dense_to_predict.csv"
       feature_keys_dir: "data/transformer_model/preprocess/artifacts/features/feature_keys.json"
