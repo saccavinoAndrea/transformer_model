@@ -15,7 +15,7 @@ from immobiliare.models.transformer_pytorch import TransformerForTokenClassifica
 from immobiliare.pipeline.steps import FileLoadingStep, TokenizerParallelStep, SaveToDiskStep
 from immobiliare.utils import timestamped_path, resolve_versioned_jsonl
 from immobiliare.utils.logging.logger_factory import LoggerFactory
-from preprocess.html.feature.feature_normalize import FeatureNormalizer
+from immobiliare.preprocess.html.feature.feature_normalize import FeatureNormalizer
 
 
 def save_ground_truth_csv(data: List[Any], path: Path):
